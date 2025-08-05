@@ -1,0 +1,6 @@
+server:
+  port: 8080
+spring:
+  ai:
+    dashscope:
+      api-key: sk-a0ee9b820eba42929beccfa16da16294
