@@ -1,6 +1,84 @@
 server:
-  port: 8080
+  port: 8888
+  servlet:
+    context-path: /api # 本地配合前端测试用
+auto-table:
+  enable: true
+  mode: update
+  model-package: com.jgh.**.entity
+  record-sql:
+    # 开启SQL记录
+    enable: true
+    # 当前版本（此处可保持与计划上线的版本号一致，方便管理SQL文件）
+    version: 0.0.1
+    # 记录到数据库（如果是多数据源，则会根据不同数据源，记录到不同的库）
+    record-type: db
+    table-name: auto_table_execute_sql_log
+  auto-drop-index: false
+# mybatis-plus
+mybatis-plus:
+  mapper-locations: classpath*:com/jgh/**/dao/xml/*.xml
+  #  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package:
+    - com.jgh.*.entity
+    - com.jgh.entity
+    - com.jgh.*.*.entity
+    - com.jgh.*.vo
+    - com.jgh.*.*.vo
+  configuration:
+    map-underscore-to-camel-case: true  # 下划线转驼峰
+    cache-enabled: true                 # 开启缓存
+    #    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 打印SQL日志
+  global-config:
+    db-config:
+      db-type: mysql
+      id-type: assign_uuid
+      fiele-strategy: not_empty
+      logic-delete-field: status
+      logic-delete-value: -1
+  type-handlers-package: com.jgh.springaidemo.common.typehandler
 spring:
   ai:
     dashscope:
       api-key: sk-a0ee9b820eba42929beccfa16da16294
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://121.37.3.179:3306/jghAiChat?useUnicode=true&characterEncoding=UTF-8
+    username: test
+    password: YmJJDnzz3j
+    druid:
+      # 连接池配置
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      max-wait: 60000
+      # 监控配置
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        login-username: admin
+        login-password: admin
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+      # 防御SQL注入
+      filters: stat,wall
+      filter:
+        wall:
+          config:
+            multi-statement-allow: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      password:
+      lettuce:
+        pool:
+          max-active: 100 # 配置连接池最大连接数
+          max-idle: 100 # 配置连接池最大空闲连接数
+          min-idle: 20 # 配置连接池最小空闲连接数
+          max-wait: -1 # 配置连接池最大阻塞等待时间
+      timeout: 120000 # 配置连接超时时间（毫秒）
