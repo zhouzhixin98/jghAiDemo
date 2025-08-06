@@ -41,12 +41,12 @@ mybatis-plus:
 spring:
   ai:
     dashscope:
-      api-key: sk-a0ee9b820eba42929beccfa16da16294
+      api-key: yourkey
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://121.37.3.179:3306/jghAiChat?useUnicode=true&characterEncoding=UTF-8
-    username: test
-    password: YmJJDnzz3j
+    url: jdbc:mysql://localhost:3306/jghAiChat?useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: yourpassword
     druid:
       # 连接池配置
       initial-size: 5
