@@ -37,6 +37,7 @@
         <druid.verison>1.2.20</druid.verison>
         <common-pool2.version>2.12.0</common-pool2.version>
         <jedis.version>5.2.0</jedis.version>
+        <spring-ai-alibaba.version>1.0.0.2</spring-ai-alibaba.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -120,6 +121,11 @@
             <groupId>com.alibaba.cloud.ai</groupId>
             <artifactId>spring-ai-alibaba-starter-memory-redis</artifactId>
             <version>1.0.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
