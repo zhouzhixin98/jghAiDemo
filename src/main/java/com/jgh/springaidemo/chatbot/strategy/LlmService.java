@@ -27,12 +27,12 @@ public interface LlmService {
     /**
      * 同步聊天
      */
-    AiChatResponse chat(ChatRequest request, String sessionId);
+    AiChatResponse chat(ChatRequest request, String sessionId,String model);
 
     /**
      * 流式聊天
      */
-    Flux<AiChatResponse> chatStream(ChatRequest request, String session);
+    Flux<AiChatResponse> chatStream(ChatRequest request, String session,String model);
 
 
     /**

@@ -40,6 +40,10 @@ mybatis-plus:
   type-handlers-package: com.jgh.springaidemo.common.typehandler
 
 spring:
+  config:
+    import:
+      - classpath:config/ChatVendorModelConfig.yaml
+      - classpath:config/ModelDefaultVendor.yaml
   ai:
     chat:
       client:
@@ -47,8 +51,10 @@ spring:
     dashscope:
       api-key: ${dashscopeKey}
     openai:
-      api-key: ${OPENAI_API_KEY}
-      base-url: https://api.openai-hk.com
+      volcengine:
+        api-key: ${OPENAI_API_KEY}
+        base-url: https://api.openai-hk.com
+        completionsPath: /chat/completions
   #      数据库
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver

@@ -55,6 +55,6 @@ public class HelloworldController {
   public Flux<ChatResponse> streamChat(@RequestParam(value = "query", defaultValue = "你好，很高兴认识你，能简单介绍一下自己吗？")String query, HttpServletResponse response) {
 
     response.setCharacterEncoding("UTF-8");
-    return chatClientFactory.getChatClient(ChatModelType.DASHS_COPE).prompt(query).stream().chatResponse();
+    return chatClientFactory.getChatClient(ChatModelType.DASH_SCOPE).prompt(query).stream().chatResponse();
   }
 }

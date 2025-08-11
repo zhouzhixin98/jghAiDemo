@@ -6,7 +6,10 @@ import com.alibaba.cloud.ai.memory.jdbc.MysqlChatMemoryRepository;
 import com.alibaba.cloud.ai.memory.redis.RedisChatMemoryRepository;
 import com.jgh.springaidemo.chatbot.dto.AiChatResponse;
 import com.jgh.springaidemo.chatbot.dto.ChatRequest;
+import com.jgh.springaidemo.chatbot.enums.ChatModelType;
+import com.jgh.springaidemo.chatbot.enums.ModelEnums;
 import com.jgh.springaidemo.chatbot.enums.RecordTypeEnum;
+import com.jgh.springaidemo.chatbot.strategy.ChatClientFactory;
 import com.jgh.springaidemo.chatbot.strategy.LlmService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.ai.chat.client.ChatClient;
@@ -36,31 +39,10 @@ import java.util.List;
 @Service
 public class DashscopeLlmServiceImpl implements LlmService {
 
-
     private final ChatClient dashScopeChatClient;
 
-    public DashscopeLlmServiceImpl(JdbcTemplate jdbcTemplate, @Qualifier("dashscopeChatModel") ChatModel dashScopeChatModel) {
-        // 构造 ChatMemoryRepository 和 ChatMemory
-        //mysql存储
-        ChatMemoryRepository chatMemoryRepository = MysqlChatMemoryRepository.mysqlBuilder()
-                .jdbcTemplate(jdbcTemplate)
-                .build();
-        //redis存储
-//        ChatMemoryRepository chatMemoryRepository = RedisChatMemoryRepository.builder().build();
-
-        ChatMemory chatMemory = MessageWindowChatMemory.builder()
-                .chatMemoryRepository(chatMemoryRepository)
-                .build();
-        this.dashScopeChatClient = ChatClient.builder(dashScopeChatModel)
-                .defaultAdvisors(new SimpleLoggerAdvisor())
-                // 注册Advisor
-                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
-                .defaultOptions(
-                        DashScopeChatOptions.builder()
-                                .withTopP(0.7)
-                                .build()
-                )
-                .build();
+    public DashscopeLlmServiceImpl(ChatClientFactory chatClientFactory) {
+        this.dashScopeChatClient = chatClientFactory.getChatClient(ChatModelType.DASH_SCOPE);
     }
 
     private static final List<String> SUPPORTED_MODELS = Arrays.asList(
@@ -91,7 +73,7 @@ public class DashscopeLlmServiceImpl implements LlmService {
      * @param sessionId
      */
     @Override
-    public AiChatResponse chat(ChatRequest request, String sessionId) {
+    public AiChatResponse chat(ChatRequest request, String sessionId,String model) {
         return null;
     }
 
@@ -102,10 +84,12 @@ public class DashscopeLlmServiceImpl implements LlmService {
      * @param session
      */
     @Override
-    public Flux<AiChatResponse> chatStream(ChatRequest request, String session) {
+    public Flux<AiChatResponse>
+
+    chatStream(ChatRequest request, String session,String model) {
 
         DashScopeChatOptions options = DashScopeChatOptions.builder()
-                .withModel(request.getModelName())
+                .withModel(model)
                 .withEnableThinking(request.getEnableThinking())
                 .withEnableSearch(request.getEnableSearch()).build();
 

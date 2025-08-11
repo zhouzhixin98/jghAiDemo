@@ -1,0 +1,6 @@
+
+models:
+  qwen: dashscope
+  deepseek: dashscope
+  kimi: dashscope
+  doubao: volcengine

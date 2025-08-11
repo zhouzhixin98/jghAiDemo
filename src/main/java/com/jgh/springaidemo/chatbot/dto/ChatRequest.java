@@ -34,7 +34,7 @@ public class ChatRequest {
      * 模型名称
      */
 //    @NotBlank(message = "模型名称不能为空")
-    private String modelName;
+//    private String modelName;
 
     /**
      * 是否开启深度思考

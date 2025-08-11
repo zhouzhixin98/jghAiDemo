@@ -4,6 +4,7 @@ import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.alibaba.cloud.ai.memory.jdbc.MysqlChatMemoryRepository;
 import com.alibaba.cloud.ai.memory.redis.RedisChatMemoryRepository;
 import com.jgh.springaidemo.chatbot.enums.ChatModelType;
+import com.jgh.springaidemo.chatbot.properties.VolcengineProperties;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -17,6 +18,7 @@ import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 @Component
+@EnableConfigurationProperties({VolcengineProperties.class})
 public class ChatClientFactory  implements InitializingBean {
 
 //    private final OpenAiApi baseOpenAiApi = OpenAiApi.builder().build();
@@ -34,7 +37,13 @@ public class ChatClientFactory  implements InitializingBean {
 
     private final ChatModel dashScopeChatModel;
 
-    private static final String DEFAULT_PROMPT = "你是一个博学的智能聊天助手，请根据用户提问回答！";
+//    private static final String DEFAULT_PROMPT = "你是一个博学的智能聊天助手，请根据用户提问回答！";
+
+    //----------------配置类--------------------------------------
+    private VolcengineProperties volcengineProperties;
+
+
+    //----------------配置类--------------------------------------
 
     // 缓存所有创建好的ChatClient
     private final Map<ChatModelType, ChatClient> chatClients = new EnumMap<>(ChatModelType.class);
@@ -53,7 +62,7 @@ public class ChatClientFactory  implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
         chatClients.put(ChatModelType.VOLCENGINE,createVolcengineClient());
-        chatClients.put(ChatModelType.DASHS_COPE,createDashscopeClient());
+        chatClients.put(ChatModelType.DASH_SCOPE,createDashscopeClient());
     }
 
 
@@ -71,12 +80,12 @@ public class ChatClientFactory  implements InitializingBean {
     /**
      * 根据模型类型创建对应的ChatClient
      */
-    public ChatClient createChatClient(ChatModelType modelType) {
+    private ChatClient createChatClient(ChatModelType modelType) {
         switch (modelType) {
 
             case VOLCENGINE:
                 return createVolcengineClient();
-            case DASHS_COPE:
+            case DASH_SCOPE:
                 return createDashscopeClient();
             // 可以添加更多模型的创建逻辑
             default:
@@ -98,7 +107,7 @@ public class ChatClientFactory  implements InitializingBean {
                 .build();
 
         return ChatClient.builder(dashScopeChatModel)
-                .defaultSystem(DEFAULT_PROMPT)
+//                .defaultSystem(DEFAULT_PROMPT)
                 .defaultAdvisors(new SimpleLoggerAdvisor())
                 // 注册Advisor
                 .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
@@ -114,11 +123,22 @@ public class ChatClientFactory  implements InitializingBean {
      * 创建火山引擎客户端
      */
     private ChatClient createVolcengineClient() {
+        //redis存储
+//        ChatMemoryRepository chatMemoryRepository = RedisChatMemoryRepository.builder().build();
+
+        //mysql存储
+        ChatMemoryRepository chatMemoryRepository = MysqlChatMemoryRepository.mysqlBuilder()
+                .jdbcTemplate(jdbcTemplate)
+                .build();
+        ChatMemory chatMemory = MessageWindowChatMemory.builder()
+                .chatMemoryRepository(chatMemoryRepository)
+                .build();
+
         //Secret Access Key：TmpnMlptVXpaV016TW1FM05HUTJZMkUyWmpKbE5qbGtNR1UwWkdObU5qVQ==
         final OpenAiApi baseOpenAiApi = OpenAiApi.builder()
-                .baseUrl("https://ark.cn-beijing.volces.com/api/v3")
-                .completionsPath("/chat/completions")
-                .apiKey("9c031c6a-d239-4385-a598-b8a07e1bd67e")
+                .baseUrl(volcengineProperties.getBaseUrl())
+                .completionsPath(volcengineProperties.getCompletionsPath())
+                .apiKey(volcengineProperties.getApiKey())
                 .build();
         OpenAiApi groqApi = baseOpenAiApi.mutate()
                 .build();
@@ -131,7 +151,7 @@ public class ChatClientFactory  implements InitializingBean {
                         .build())
                 .build();
 
-        return ChatClient.builder(groqModel).build();
+        return ChatClient.builder(groqModel).defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build()).build();
     }
 
 }

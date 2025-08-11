@@ -18,6 +18,6 @@ public interface ChatService {
      * @param request
      * @return
      */
-    Flux<AiChatResponse> chatStream(ChatRequest request);
+    Flux<AiChatResponse> chatStream(ChatRequest request,String vendor,String model);
 
 }
