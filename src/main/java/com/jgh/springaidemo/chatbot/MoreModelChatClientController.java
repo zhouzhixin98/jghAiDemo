@@ -64,13 +64,16 @@ public class MoreModelChatClientController {
 		}
 
 		if (Objects.equals("openai", platform)) {
+
+			ChatClient chatClient1 = ChatClient.create(openAIChatModel);
 			System.out.println("命中 openai ......");
-			return ChatClient.builder(openAIChatModel).build().prompt(prompt)
-					.options(DashScopeChatOptions.builder()
-							.withModel(models)
-							.build()
-					).stream()
-					.content();
+            Flux<String> content = ChatClient.builder(openAIChatModel).build().prompt(prompt)
+                    .options(DashScopeChatOptions.builder()
+                            .withModel(models)
+                            .build()
+                    ).stream()
+                    .content();
+            return content;
 		}
 
 		return Flux.just("platform not exist");

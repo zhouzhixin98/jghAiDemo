@@ -3,14 +3,6 @@ package com.jgh.springaidemo.chatbot.strategy.impl;
 import com.jgh.springaidemo.chatbot.dto.AiChatResponse;
 import com.jgh.springaidemo.chatbot.dto.ChatRequest;
 import com.jgh.springaidemo.chatbot.strategy.LlmService;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.memory.MessageWindowChatMemory;
-import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.model.openai.autoconfigure.OpenAiChatAutoConfiguration;
-import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 

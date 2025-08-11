@@ -16,8 +16,10 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
+import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.ChatOptions;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -37,7 +39,7 @@ public class DashscopeLlmServiceImpl implements LlmService {
 
     private final ChatClient dashScopeChatClient;
 
-    public DashscopeLlmServiceImpl(JdbcTemplate jdbcTemplate, ChatClient.Builder chatClientBuilder) {
+    public DashscopeLlmServiceImpl(JdbcTemplate jdbcTemplate, @Qualifier("dashscopeChatModel") ChatModel dashScopeChatModel) {
         // 构造 ChatMemoryRepository 和 ChatMemory
         //mysql存储
         ChatMemoryRepository chatMemoryRepository = MysqlChatMemoryRepository.mysqlBuilder()
@@ -49,7 +51,7 @@ public class DashscopeLlmServiceImpl implements LlmService {
         ChatMemory chatMemory = MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
                 .build();
-        this.dashScopeChatClient = chatClientBuilder
+        this.dashScopeChatClient = ChatClient.builder(dashScopeChatModel)
                 .defaultAdvisors(new SimpleLoggerAdvisor())
                 // 注册Advisor
                 .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())

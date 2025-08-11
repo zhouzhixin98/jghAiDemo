@@ -1,7 +1,7 @@
 server:
   port: 8888
   servlet:
-    context-path: /api
+    context-path: /api # 本地配合前端测试用
 auto-table:
   enable: true
   mode: update
@@ -38,16 +38,26 @@ mybatis-plus:
       logic-delete-field: status
       logic-delete-value: -1
   type-handlers-package: com.jgh.springaidemo.common.typehandler
+
 spring:
   ai:
+    chat:
+      client:
+        enabled: false
     dashscope:
-      api-key: yourkey
+      api-key: sk-a0ee9b820eba42929beccfa16da16294
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      base-url: https://api.openai-hk.com
+  #      数据库
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/jghAiChat?useUnicode=true&characterEncoding=UTF-8
-    username: root
-    password: password
+    url: jdbc:mysql://121.37.3.179:3306/jghAiChat?useUnicode=true&characterEncoding=UTF-8
+    username: test
+    password: YmJJDnzz3j
+    type: com.alibaba.druid.pool.DruidDataSource
     druid:
+      aop-patterns: com.jgh.springaidemo.*
       # 连接池配置
       initial-size: 5
       min-idle: 5
@@ -66,6 +76,10 @@ spring:
       # 防御SQL注入
       filters: stat,wall
       filter:
+        stat:
+          slow-sql-millis: 1000 #设置慢查询时间
+          logSlowSql: true #设置慢查询sql日志打印
+          enabled: true
         wall:
           config:
             multi-statement-allow: true
