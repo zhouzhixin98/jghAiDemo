@@ -45,7 +45,7 @@ spring:
       client:
         enabled: false
     dashscope:
-      api-key: sk-a0ee9b820eba42929beccfa16da16294
+      api-key: ${dashscopeKey}
     openai:
       api-key: ${OPENAI_API_KEY}
       base-url: https://api.openai-hk.com
