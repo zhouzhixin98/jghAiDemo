@@ -6,6 +6,7 @@ import com.jgh.springaidemo.chatbot.enums.ChatModelType;
 import com.jgh.springaidemo.chatbot.enums.RecordTypeEnum;
 import com.jgh.springaidemo.chatbot.strategy.ChatClientFactory;
 import com.jgh.springaidemo.chatbot.strategy.LlmService;
+import com.jgh.springaidemo.common.tools.impl.BaiduWebSearchToolImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -29,13 +30,13 @@ public class VolcengineLlmServiceImpl implements LlmService {
 
     private final ChatClient volcengineChatClient;
 
-    private final ToolCallbackProvider toolCallbackProvider;
+//    private final ToolCallbackProvider toolCallbackProvider;
 
 
-    public VolcengineLlmServiceImpl(ChatClientFactory chatClientFactory, ToolCallbackProvider toolCallbackProvider) {
+    public VolcengineLlmServiceImpl(ChatClientFactory chatClientFactory) {
         this.volcengineChatClient = chatClientFactory.getChatClient(ChatModelType.VOLCENGINE);
 
-        this.toolCallbackProvider = toolCallbackProvider;
+//        this.toolCallbackProvider = toolCallbackProvider;
     }
 
 
@@ -90,18 +91,30 @@ public class VolcengineLlmServiceImpl implements LlmService {
     @Override
     public Flux<AiChatResponse> chatStream(ChatRequest request, String session, String model) {
         OpenAiChatOptions options = OpenAiChatOptions.builder().model(model).build();
+        String prompt = "你是一个博学的智能对话助手";
         if (request.getEnableSearch()){
             //todo 实现联网搜索
-
+            prompt += "，你可以使用百度搜索功能";
+            return volcengineChatClient
+                    .prompt(prompt)
+                    .tools(new BaiduWebSearchToolImpl())
+                    .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, request.getConversationId()))
+                    .user(request.getMessage())
+                    .options(options)
+                    .stream()
+                    .chatResponse()
+                    .map(this::convertToAiChatResponse);
         }
         return volcengineChatClient
-                .prompt()
+                .prompt(prompt)
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, request.getConversationId()))
                 .user(request.getMessage())
                 .options(options)
                 .stream()
                 .chatResponse()
                 .map(this::convertToAiChatResponse);
+
+
 
     }
 
