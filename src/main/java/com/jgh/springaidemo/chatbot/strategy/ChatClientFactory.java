@@ -3,8 +3,10 @@ package com.jgh.springaidemo.chatbot.strategy;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.alibaba.cloud.ai.memory.jdbc.MysqlChatMemoryRepository;
 import com.alibaba.cloud.ai.memory.redis.RedisChatMemoryRepository;
+import com.alibaba.cloud.ai.toolcalling.baidusearch.BaiduSearchService;
 import com.jgh.springaidemo.chatbot.enums.ChatModelType;
 import com.jgh.springaidemo.chatbot.properties.VolcengineProperties;
+import jakarta.annotation.Resource;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
@@ -27,7 +29,7 @@ import java.util.Map;
 
 @Component
 @EnableConfigurationProperties({VolcengineProperties.class})
-public class ChatClientFactory  implements InitializingBean {
+public class ChatClientFactory implements InitializingBean {
 
 //    private final OpenAiApi baseOpenAiApi = OpenAiApi.builder().build();
 
@@ -40,6 +42,7 @@ public class ChatClientFactory  implements InitializingBean {
 //    private static final String DEFAULT_PROMPT = "你是一个博学的智能聊天助手，请根据用户提问回答！";
 
     //----------------配置类--------------------------------------
+    @Resource
     private VolcengineProperties volcengineProperties;
 
 
@@ -61,8 +64,8 @@ public class ChatClientFactory  implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() {
-        chatClients.put(ChatModelType.VOLCENGINE,createVolcengineClient());
-        chatClients.put(ChatModelType.DASH_SCOPE,createDashscopeClient());
+        chatClients.put(ChatModelType.VOLCENGINE, createVolcengineClient());
+        chatClients.put(ChatModelType.DASH_SCOPE, createDashscopeClient());
     }
 
 
@@ -98,9 +101,9 @@ public class ChatClientFactory  implements InitializingBean {
 //        ChatMemoryRepository chatMemoryRepository = RedisChatMemoryRepository.builder().build();
 
         //mysql存储
-    ChatMemoryRepository chatMemoryRepository = MysqlChatMemoryRepository.mysqlBuilder()
-            .jdbcTemplate(jdbcTemplate)
-            .build();
+        ChatMemoryRepository chatMemoryRepository = MysqlChatMemoryRepository.mysqlBuilder()
+                .jdbcTemplate(jdbcTemplate)
+                .build();
 
         ChatMemory chatMemory = MessageWindowChatMemory.builder()
                 .chatMemoryRepository(chatMemoryRepository)
@@ -151,7 +154,9 @@ public class ChatClientFactory  implements InitializingBean {
                         .build())
                 .build();
 
-        return ChatClient.builder(groqModel).defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build()).build();
+        return ChatClient.builder(groqModel)
+                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+                .build();
     }
 
 }

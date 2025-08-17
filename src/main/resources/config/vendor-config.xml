@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!-- 定义外层Map：Key为vendorId，Value为内层Map -->
+    <bean id="vendorModelConfig" class="com.jgh.springaidemo.chatbot.config.VendorModelConfig">
+        <property name="vendors">
+            <map>
+                <!-- 第一个供应商 -->
+                <entry key="dashscope">
+                    <map>
+                        <entry key="qwen" value="qwen-turbo"/>
+                        <entry key="deepseek-r1" value="deepseek-r1"/>
+                        <entry key="deepseek-v3" value="deepseek-v3"/>
+                        <entry key="kimi" value="Moonshot-Kimi-K2-Instruct"/>
+                    </map>
+                </entry>
+
+                <!-- 第二个供应商 -->
+                <entry key="volcengine">
+                    <map>
+                        <entry key="doubao" value="doubao-seed-1-6-250615"/>
+                    </map>
+                </entry>
+            </map>
+        </property>
+    </bean>
+</beans>

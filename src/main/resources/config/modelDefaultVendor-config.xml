@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!-- 定义外层Map：Key为vendorId，Value为内层Map -->
+    <bean id="modelDefaultVendor" class="com.jgh.springaidemo.chatbot.config.ModelDefaultVendor">
+        <property name="models">
+            <map>
+                <entry key="qwen" value="dashscope"/>
+                <entry key="deepseek" value="dashscope"/>
+                <entry key="kimi" value="dashscope"/>
+                <entry key="doubao" value="volcengine"/>
+            </map>
+        </property>
+    </bean>
+</beans>

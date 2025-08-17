@@ -31,7 +31,7 @@ public class ChatController {
      */
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<AiChatResponse> streamChat(@RequestBody ChatRequest request,
-                                           @RequestHeader(value = "vendor", defaultValue = "dashscope", required = false) String vendor,
+                                           @RequestHeader(value = "vendor", required = false) String vendor,
                                            @RequestHeader(value = "model", required = false) String model) {
         //fixme 流式智能对话
         return chatService.chatStream(request, vendor, model);

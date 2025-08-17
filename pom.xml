@@ -38,6 +38,8 @@
         <common-pool2.version>2.12.0</common-pool2.version>
         <jedis.version>5.2.0</jedis.version>
         <spring-ai-alibaba.version>1.0.0.2</spring-ai-alibaba.version>
+        <spring-ai-version>1.0.1</spring-ai-version>
+        <selenium.version>4.34.0</selenium.version>
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -128,6 +130,16 @@
             <version>1.0.1</version>
         </dependency>
         <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-starter-tool-calling-baidusearch</artifactId>
+            <version>${spring-ai-alibaba.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-starter-mcp-server-webflux</artifactId>
+            <version>${spring-ai-version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
             <version>${common-pool2.version}</version>
@@ -142,6 +154,11 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.32</version>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
         </dependency>
     </dependencies>
 

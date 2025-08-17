@@ -12,14 +12,11 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: JiuGHim
@@ -32,9 +29,13 @@ public class VolcengineLlmServiceImpl implements LlmService {
 
     private final ChatClient volcengineChatClient;
 
-    public VolcengineLlmServiceImpl(ChatClientFactory chatClientFactory) {
+    private final ToolCallbackProvider toolCallbackProvider;
+
+
+    public VolcengineLlmServiceImpl(ChatClientFactory chatClientFactory, ToolCallbackProvider toolCallbackProvider) {
         this.volcengineChatClient = chatClientFactory.getChatClient(ChatModelType.VOLCENGINE);
 
+        this.toolCallbackProvider = toolCallbackProvider;
     }
 
 
@@ -91,19 +92,17 @@ public class VolcengineLlmServiceImpl implements LlmService {
         OpenAiChatOptions options = OpenAiChatOptions.builder().model(model).build();
         if (request.getEnableSearch()){
             //todo 实现联网搜索
-//            options.setWebSearchOptions();
-        }
-//        if (request.getEnableThinking()){
-//            options.
-//        }
 
+        }
         return volcengineChatClient
-                .prompt(request.getMessage())
+                .prompt()
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, request.getConversationId()))
+                .user(request.getMessage())
                 .options(options)
                 .stream()
                 .chatResponse()
                 .map(this::convertToAiChatResponse);
+
     }
 
     /**
@@ -123,7 +122,8 @@ public class VolcengineLlmServiceImpl implements LlmService {
             return AiChatResponse.success(chatResponse.getResult().getOutput().getText(),
                     true, RecordTypeEnum.TEXT.getCode());
         }else {
-            String reasoningContent = output.getMetadata().get("reasoningContent").toString();
+//            String reasoningContent = output.getMetadata().get("reasoningContent").toString();
+            String reasoningContent = output.getText();
             if (StringUtils.isNotBlank(reasoningContent)){
                 return AiChatResponse.success(reasoningContent,
                         false,RecordTypeEnum.REASONING.getCode());
