@@ -12,8 +12,10 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.ai.vectorstore.SimpleVectorStore;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -30,12 +32,17 @@ public class VolcengineLlmServiceImpl implements LlmService {
 
     private final ChatClient volcengineChatClient;
 
+    private final SimpleVectorStore simpleVectorStore;
+
+    private final String SAVEPATH = System.getProperty("user.dir") + "/src/main/resources/save.json";
+
 //    private final ToolCallbackProvider toolCallbackProvider;
 
 
-    public VolcengineLlmServiceImpl(ChatClientFactory chatClientFactory) {
+    public VolcengineLlmServiceImpl(ChatClientFactory chatClientFactory, EmbeddingModel embeddingModel) {
         this.volcengineChatClient = chatClientFactory.getChatClient(ChatModelType.VOLCENGINE);
-
+        this.simpleVectorStore = SimpleVectorStore
+                .builder(embeddingModel).build();
 //        this.toolCallbackProvider = toolCallbackProvider;
     }
 
@@ -55,7 +62,7 @@ public class VolcengineLlmServiceImpl implements LlmService {
                 "deepseek-r1", "deepseek-r1",
                 "deepseek-v3", "deepseek-v3",
                 "kimi", "Moonshot-Kimi-K2-Instruct");
-        Map<String, String> volcengineMap = Map.of("doubao","doubao-seed-1-6-250615");
+        Map<String, String> volcengineMap = Map.of("doubao", "doubao-seed-1-6-250615");
         models.put("dashscope", dashscopeMap);
         models.put("volcengine", volcengineMap);
 
@@ -92,28 +99,20 @@ public class VolcengineLlmServiceImpl implements LlmService {
     public Flux<AiChatResponse> chatStream(ChatRequest request, String session, String model) {
         OpenAiChatOptions options = OpenAiChatOptions.builder().model(model).build();
         String prompt = "你是一个博学的智能对话助手";
-        if (request.getEnableSearch()){
-            //todo 实现联网搜索
-            prompt += "，你可以使用百度搜索功能";
-            return volcengineChatClient
-                    .prompt(prompt)
-                    .tools(new BaiduWebSearchToolImpl())
-                    .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, request.getConversationId()))
-                    .user(request.getMessage())
-                    .options(options)
-                    .stream()
-                    .chatResponse()
-                    .map(this::convertToAiChatResponse);
-        }
-        return volcengineChatClient
-                .prompt(prompt)
+        Boolean enableSearch = request.getEnableSearch();
+        ChatClient.ChatClientRequestSpec spec = volcengineChatClient
+                .prompt(prompt + (enableSearch ? "，你可以使用百度搜索功能" : ""))
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, request.getConversationId()))
                 .user(request.getMessage())
-                .options(options)
+                .options(options);
+        if (enableSearch) {
+            spec.tools(new BaiduWebSearchToolImpl());
+        }
+
+        return spec
                 .stream()
                 .chatResponse()
                 .map(this::convertToAiChatResponse);
-
 
 
     }
@@ -131,18 +130,18 @@ public class VolcengineLlmServiceImpl implements LlmService {
 //        String content = chatResponse.getResult().getOutput().getContent();
 //        Metadata metadata = extractMetadata(chatResponse); // 自定义元数据提取
         AssistantMessage output = chatResponse.getResult().getOutput();
-        if ("STOP".equals(chatResponse.getResult().getMetadata().getFinishReason())){
+        if ("STOP".equals(chatResponse.getResult().getMetadata().getFinishReason())) {
             return AiChatResponse.success(chatResponse.getResult().getOutput().getText(),
                     true, RecordTypeEnum.TEXT.getCode());
-        }else {
+        } else {
 //            String reasoningContent = output.getMetadata().get("reasoningContent").toString();
             String reasoningContent = output.getText();
-            if (StringUtils.isNotBlank(reasoningContent)){
+            if (StringUtils.isNotBlank(reasoningContent)) {
                 return AiChatResponse.success(reasoningContent,
-                        false,RecordTypeEnum.REASONING.getCode());
+                        false, RecordTypeEnum.REASONING.getCode());
             }
             return AiChatResponse.success(chatResponse.getResult().getOutput().getText(),
-                    false,RecordTypeEnum.TEXT.getCode());
+                    false, RecordTypeEnum.TEXT.getCode());
         }
 
     }
