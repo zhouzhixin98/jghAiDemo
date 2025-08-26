@@ -2,6 +2,7 @@ package com.jgh.springaidemo.chatbot.strategy.impl;
 
 import com.alibaba.cloud.ai.dashscope.api.DashScopeApi;
 import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
+import com.alibaba.cloud.ai.dashscope.image.DashScopeImageOptions;
 import com.alibaba.cloud.ai.memory.jdbc.MysqlChatMemoryRepository;
 import com.alibaba.cloud.ai.memory.redis.RedisChatMemoryRepository;
 import com.jgh.springaidemo.chatbot.dto.AiChatResponse;
@@ -86,12 +87,16 @@ public class DashscopeLlmServiceImpl implements LlmService {
     @Override
     public Flux<AiChatResponse>
 
+
     chatStream(ChatRequest request, String session,String model) {
 
         DashScopeChatOptions options = DashScopeChatOptions.builder()
                 .withModel(model)
                 .withEnableThinking(request.getEnableThinking())
                 .withEnableSearch(request.getEnableSearch()).build();
+        if (StringUtils.isNotBlank(request.getFileUrl())){
+            //如果传入文件
+        }
 
 
         return dashScopeChatClient

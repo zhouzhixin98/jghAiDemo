@@ -38,7 +38,7 @@
         <common-pool2.version>2.12.0</common-pool2.version>
         <jedis.version>5.2.0</jedis.version>
         <spring-ai-alibaba.version>1.0.0.2</spring-ai-alibaba.version>
-        <spring-ai-version>1.0.1</spring-ai-version>
+        <spring-ai-version>1.0.0</spring-ai-version>
         <selenium.version>4.34.0</selenium.version>
         <tika.version>3.2.1</tika.version>
     </properties>
@@ -177,6 +177,13 @@
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-vector-store</artifactId>
             <version>${spring-ai-version}</version>
+        </dependency>
+        
+        <!-- PDFBox for PDF to image conversion -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.5</version>
         </dependency>
     </dependencies>
 
